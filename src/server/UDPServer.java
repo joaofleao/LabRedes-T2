@@ -1,3 +1,4 @@
+package server;
 import java.io.*;
 import java.net.*;
 
@@ -26,8 +27,7 @@ class UDPServer {
 
             // cria o arquivo que vai receber os dados
             File file = new File("out_files/" + fileName);
-            FileOutputStream fileWritter = new FileOutputStream(file);
-
+            FileOutputStream fileWritter = new FileOutputStream(file);                                                                             
             // escreve os dados no arquivo
             i++;
             while (data[i] != 0) {
