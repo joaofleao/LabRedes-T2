@@ -1,1 +1,1 @@
-teste de segmentacao e organizacao dos dados no outro lado
+eu quero testar como vai funcionar esse aplicativo e se a quebra de pacotesd e reassmble deles etsa sendo feita corretamente
