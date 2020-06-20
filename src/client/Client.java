@@ -1,6 +1,8 @@
 package client;
+
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 
 public class Client {
@@ -34,8 +36,12 @@ public class Client {
 
    public String openFile(String fileName) throws IOException {
       File file = new File("in_files/" + fileName);
-      FileInputStream fileReader = new FileInputStream(file);
-      return new String(fileReader.readAllBytes());
+      Scanner fileScanner = new Scanner(file);
+      String content = fileScanner.nextLine();
+      while (fileScanner.hasNextLine()) {
+         content = content + "\n" + fileScanner.nextLine() ;
+      }
+      return content;
    }
 
    public byte[] convertText(String text) throws IOException {
@@ -78,6 +84,7 @@ public class Client {
          DatagramPacket sendPacket = new DatagramPacket(out, out.length, IPAddress, 1971);
          // envia o pacote
          clientSocket.send(sendPacket);
+         System.out.println(new String(out));
       
          System.out.println(yellow +"Pacote enviado" + reset);
       }

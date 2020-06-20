@@ -1,1 +1,0 @@
-eu quero testar como vai funcionar esse aplicativo e se a quebra de pacotesd e reassmble deles etsa sendo feita corretamente
