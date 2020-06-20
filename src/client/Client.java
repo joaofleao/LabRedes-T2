@@ -56,7 +56,8 @@ public class Client {
 
    public byte[] getSegment(String fileText, String fileName, int ack, boolean last) throws IOException {
       byte[] header;
-      if (last) header = convertText(0 + "\n" + fileName + "\n");
+      if (last) header = convertText("00" + "\n" + fileName + "\n");
+      else if (ack<10)header = convertText("0" + ack + "\n" + fileName + "\n");
       else header = convertText(ack + "\n" + fileName + "\n");
       byte[] content = convertText(fileText + "\n");
       byte[] segment = new byte[packetSize];
@@ -73,21 +74,22 @@ public class Client {
    public void send(String fileName) throws IOException {
       //abre o arquivo
       String fileText= openFile(fileName);
-      int headerSize = (fileName).length() +4;
+      int headerSize = (fileName).length() +6;
       int numberSegments = numberOfSegments(fileText, headerSize);
       
-      for (int i = 1; i <= numberSegments ; i++) {
-         //get first segment
-         byte[] out = getSegment(fileText, fileName, i, (numberSegments==i));
-   
-         // cria pacote com o dado, o endereço do server e porta do servidor
-         DatagramPacket sendPacket = new DatagramPacket(out, out.length, IPAddress, 1971);
-         // envia o pacote
-         clientSocket.send(sendPacket);
-         System.out.println(new String(out));
-      
-         System.out.println(yellow +"Pacote enviado" + reset);
+      int ack = 1;
+      for (int j = 1; numberSegments>0; j = j*2) {
+         if (j>numberSegments) j = numberSegments;
+         for (int i = 0; i < j ; i++) {
+            byte[] out = getSegment(fileText, fileName, ack, (numberSegments==1));
+            DatagramPacket sendPacket = new DatagramPacket(out, out.length, IPAddress, 1971);
+            clientSocket.send(sendPacket);
+            ack++;
+            numberSegments--;
+         }
+         System.out.println(yellow + j + " pacotes enviado" + reset);
       }
+
       System.out.println(green + "Arquivo enviado" + reset);      
    }
 

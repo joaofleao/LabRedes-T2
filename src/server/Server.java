@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
+import javax.rmi.ssl.SslRMIClientSocketFactory;
+
 public class Server {
 
       private DatagramSocket serverSocket;
@@ -42,15 +44,14 @@ public class Server {
       }
 
       public String formatReceived(byte[] packet) {
-            Scanner reader = new Scanner(new String(packet));
-            reader.nextLine();
-            reader.nextLine();
-            
-            String formatted = reader.nextLine();;
-            while (reader.hasNextLine()) {
-                  String contentLine = reader.nextLine();
-                  if (contentLine.getBytes()[0]==0) break;                  
-                  formatted = formatted + "\n" + contentLine;
+            int i;
+            for (i = 4; packet[i]!=10; i++);
+            i++;
+            String formatted = "";
+            while(packet.length>i&& packet[i]!=0 ) {
+                  System.out.println("teste " + packet[i]);
+                  formatted = formatted + (char)packet[i];
+                  i++;
             }
             return formatted;
       }
@@ -77,7 +78,13 @@ public class Server {
                   
                   assembled = assembled + formatReceived(received);
                   System.out.println(yellow + "Pacote recebido" + reset);
-                  if (received[received.length-1] == 0) break;
+
+                  System.out.println(received[received.length-1]);
+                  System.out.println(new String(received));
+
+
+
+                  if (received[0] == 48 && received[1]==48) break;
             }
             System.out.println(green + "Arquivo recebido" + reset);
 
