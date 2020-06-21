@@ -40,7 +40,7 @@ public class Server {
             File file = new File("out_files/" + fileName);
             FileOutputStream fileWritter = new FileOutputStream(file);
             fileWritter.write(text.getBytes());
-            System.out.println("fileName");
+            System.out.println(green + "Arquivo salvo" + reset);
       }
 
       public String formatReceived(byte[] packet) {
@@ -49,7 +49,6 @@ public class Server {
             i++;
             String formatted = "";
             while(packet.length>i&& packet[i]!=0 ) {
-                  System.out.println("teste " + packet[i]);
                   formatted = formatted + (char)packet[i];
                   i++;
             }
@@ -63,35 +62,30 @@ public class Server {
 
       }
 
-      public void receive() throws IOException {
-            byte[] receiveData = new byte[packetSize];
-            String fileName;
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-
+      public void receiveFile() throws IOException {
             System.out.println(blue + "Waiting" + reset);
-
+            
+            byte[] received;
             String assembled = "";
-            while (true) {
-                  serverSocket.receive(receivePacket);
-                  byte[] received = receivePacket.getData();
-                  fileName = getName(received);
-                  
+            do {
+                  received = receivePacket();
                   assembled = assembled + formatReceived(received);
-                  System.out.println(yellow + "Pacote recebido" + reset);
+            } while (!(received[0] == 48 && received[1]==48 && received[2]==48));
 
-                  System.out.println(received[received.length-1]);
-                  System.out.println(new String(received));
-
-
-
-                  if (received[0] == 48 && received[1]==48) break;
-            }
             System.out.println(green + "Arquivo recebido" + reset);
 
-            saveFile(fileName, assembled);
-
-            System.out.println(green + "Arquivo salvo" + reset);
-
+            saveFile(getName(received), assembled);
       }
+
+
+      private byte[] receivePacket() throws IOException {
+            byte[] receiveData = new byte[packetSize];
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            serverSocket.receive(receivePacket);
+            
+            System.out.println(yellow + "Pacote " + (char)receivePacket.getData()[0] + (char)receivePacket.getData()[1] + (char)receivePacket.getData()[2] + " recebido" + reset);
+            return receivePacket.getData();
+      }
+
 
 }

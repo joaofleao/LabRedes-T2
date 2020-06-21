@@ -3,7 +3,7 @@ package client;
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
-
+import model.FileObject;
 
 public class Client {
    
@@ -34,63 +34,38 @@ public class Client {
       clientSocket.close();
    }
 
-   public String openFile(String fileName) throws IOException {
-      File file = new File("in_files/" + fileName);
-      Scanner fileScanner = new Scanner(file);
-      String content = fileScanner.nextLine();
-      while (fileScanner.hasNextLine()) {
-         content = content + "\n" + fileScanner.nextLine() ;
-      }
-      return content;
-   }
-
-   public byte[] convertText(String text) throws IOException {
-      return text.getBytes();
-   }
-
-   
-   public int numberOfSegments(String packet, int headerSize) {
-      double result = (double)packet.length()/(double)(packetSize-headerSize);
-      return (int)Math.ceil(result);
-   }
-
-   public byte[] getSegment(String fileText, String fileName, int ack, boolean last) throws IOException {
-      byte[] header;
-      if (last) header = convertText("00" + "\n" + fileName + "\n");
-      else if (ack<10)header = convertText("0" + ack + "\n" + fileName + "\n");
-      else header = convertText(ack + "\n" + fileName + "\n");
-      byte[] content = convertText(fileText + "\n");
-      byte[] segment = new byte[packetSize];
-      int i;
-      for (i = 0; i < header.length; i++) segment[i] = header[i];
-
-      for (int j = (ack-1)*(segment.length-header.length); j < content.length && i<segment.length ; j++) {
-         segment[i] = content[j];
-         i++;
-      }
-      return segment;
-   }
-
-   public void send(String fileName) throws IOException {
-      //abre o arquivo
-      String fileText= openFile(fileName);
-      int headerSize = (fileName).length() +6;
-      int numberSegments = numberOfSegments(fileText, headerSize);
+   public void sendFile(String fileName) throws Exception {
+      FileObject file = new FileObject(fileName, packetSize);
       
-      int ack = 1;
-      for (int j = 1; numberSegments>0; j = j*2) {
-         if (j>numberSegments) j = numberSegments;
-         for (int i = 0; i < j ; i++) {
-            byte[] out = getSegment(fileText, fileName, ack, (numberSegments==1));
-            DatagramPacket sendPacket = new DatagramPacket(out, out.length, IPAddress, 1971);
-            clientSocket.send(sendPacket);
-            ack++;
-            numberSegments--;
-         }
-         System.out.println(yellow + j + " pacotes enviado" + reset);
-      }
+      for (int i = 0; i<file.getPacketsSize(); i++) {
+         sendPacket(file.getPacketsItem(i));
+         System.out.println(yellow + "Pacote " + (i+1) + " enviado" + reset);
+         System.out.println(yellow + file.getPacketsItem(i) + reset);
 
+         if (i+1<file.getPacketsSize() && i!=0) {
+            i++;
+            sendPacket(file.getPacketsItem(i));
+            System.out.println(yellow + "Pacote " + (i+1) + " enviado" + reset);
+         }
+         //receiveConfirmation();
+      }
+      
       System.out.println(green + "Arquivo enviado" + reset);      
+   }
+
+   // private boolean receiveConfirmation() throws IOException {
+
+   //    byte[] receivedData = new byte[1024];
+   //    DatagramPacket receivedPacket = new DatagramPacket(receivedData, receivedData.length);
+   //    clientSocket.receive(receivedPacket);
+   //    return true;
+
+   // }
+
+   private void sendPacket(String fileText) throws IOException {
+      byte[] out = fileText.getBytes();
+      DatagramPacket sendPacket = new DatagramPacket(out, out.length, IPAddress, 1971);
+      clientSocket.send(sendPacket);
    }
 
 }
