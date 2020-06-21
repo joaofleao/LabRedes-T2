@@ -1,10 +1,11 @@
 package client;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Scanner;
-import model.PacketObject;
+
+import utils.PacketObject;
 
 public class ClientFile {
     private String name;
@@ -57,13 +58,21 @@ public class ClientFile {
         return teste;
     }
 
-    private void open() throws FileNotFoundException {
+    private void open() throws Exception {
         File file = new File("in_files/" + name);
-        Scanner fileScanner = new Scanner(file);
-        content = fileScanner.nextLine();
-        while (fileScanner.hasNextLine()) {
-            content = content + "\n" + fileScanner.nextLine();
-        }
+        InputStream is = null;
+        is = new FileInputStream(file);
+        byte[] buffer = new byte[1024];
+        is.read(buffer);
+        is.close();
+        content = new String (format(buffer));
+    }
+
+    public static byte[] format(byte[] packet) {
+        String formatted = "";
+        for (int i = 0; packet[i] != 0; i++)
+            formatted = formatted + (char) packet[i];
+        return formatted.getBytes();
     }
 
 }

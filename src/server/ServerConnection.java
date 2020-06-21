@@ -5,7 +5,7 @@ import java.net.*;
 import java.util.Scanner;
 
 
-public class Server {
+public class ServerConnection {
 
       private DatagramSocket serverSocket;
       private InetAddress IPAddress;
@@ -22,7 +22,7 @@ public class Server {
       public static final String cyan = "\u001B[36m";
       public static final String white = "\u001B[37m";
 
-      public Server(int packetSize) throws UnknownHostException {
+      public ServerConnection(int packetSize) throws UnknownHostException {
             this.packetSize = packetSize;
             IPAddress = InetAddress.getByName("localhost");
       }

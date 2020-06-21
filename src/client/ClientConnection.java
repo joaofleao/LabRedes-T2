@@ -3,7 +3,7 @@ package client;
 import java.io.*;
 import java.net.*;
 
-public class Client {
+public class ClientConnection {
 
    private DatagramSocket clientSocket;
    private InetAddress IPAddress;
@@ -19,7 +19,7 @@ public class Client {
    public static final String cyan = "\u001B[36m";
    public static final String white = "\u001B[37m";
 
-   public Client(int packetSize) throws UnknownHostException {
+   public ClientConnection(int packetSize) throws UnknownHostException {
       this.packetSize = packetSize;
       IPAddress = InetAddress.getByName("localhost");
    }

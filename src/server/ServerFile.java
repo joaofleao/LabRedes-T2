@@ -1,9 +1,10 @@
 package server;
 
-import model.PacketObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+
+import utils.PacketObject;
 
 public class ServerFile {
     private String name;
@@ -25,16 +26,6 @@ public class ServerFile {
             content = content + packetObject.getContent();
         }
 
-    }
-
-    public String formatReceived(byte[] packet) {
-        int i;
-        for (i = 4; packet[i] != 10; i++)
-            ;
-        i++;
-        String formatted = "";
-
-        return formatted;
     }
 
     public boolean addSegment(byte[] segment) {
