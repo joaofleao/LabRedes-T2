@@ -1,16 +1,17 @@
-package model;
+package client;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import model.PacketObject;
 
-public class FileObject {
+public class ClientFile {
     private String name;
     private String content;
     private ArrayList<PacketObject> packets;
 
-    public FileObject(String name, int packetSize) throws Exception {
+    public ClientFile(String name, int packetSize) throws Exception {
         this.name = name;
         open();
         setPackets(packetSize);
@@ -31,7 +32,7 @@ public class FileObject {
     private void setPackets(int packetSize) {
         packets = new ArrayList<PacketObject>();
         for (int i = 1; true; i++) {
-            PacketObject packet = new PacketObject(i, name, packetSize);
+            PacketObject packet = new PacketObject(i, name, "", packetSize);
             String segment = getSegment(i, packet.getContentSize());
             if (segment.length()==0) break;
             packet.setContent(segment);

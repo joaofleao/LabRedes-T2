@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
-import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 public class Server {
 
@@ -35,46 +34,21 @@ public class Server {
       public void close() {
             serverSocket.close();
       }
-
-      public void saveFile(String fileName, String text) throws IOException {
-            File file = new File("out_files/" + fileName);
-            FileOutputStream fileWritter = new FileOutputStream(file);
-            fileWritter.write(text.getBytes());
-            System.out.println(green + "Arquivo salvo" + reset);
-      }
-
-      public String formatReceived(byte[] packet) {
-            int i;
-            for (i = 4; packet[i]!=10; i++);
-            i++;
-            String formatted = "";
-            while(packet.length>i&& packet[i]!=0 ) {
-                  formatted = formatted + (char)packet[i];
-                  i++;
-            }
-            return formatted;
-      }
-      public String getName(byte[] packet) {
-            String name = new String(packet);
-            Scanner reader = new Scanner(name);
-            reader.nextLine();
-            return reader.nextLine();
-
-      }
-
-      public void receiveFile() throws IOException {
+      
+      public void receiveFile() throws Exception {
+            ServerFile file = new ServerFile();
             System.out.println(blue + "Waiting" + reset);
             
             byte[] received;
-            String assembled = "";
-            do {
+            while (true) {
                   received = receivePacket();
-                  assembled = assembled + formatReceived(received);
-            } while (!(received[0] == 48 && received[1]==48 && received[2]==48));
+                  System.out.println(yellow + "Pacote " + (char)received[0] + (char)received[1] + (char)received[2] + " recebido" + reset);
+                  if (file.addSegment(received)) break; 
+            }
 
-            System.out.println(green + "Arquivo recebido" + reset);
+            System.out.println(green + "Arquivo " + file.getName() + " recebido" + reset);
 
-            saveFile(getName(received), assembled);
+            file.save();
       }
 
 
@@ -83,7 +57,6 @@ public class Server {
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             serverSocket.receive(receivePacket);
             
-            System.out.println(yellow + "Pacote " + (char)receivePacket.getData()[0] + (char)receivePacket.getData()[1] + (char)receivePacket.getData()[2] + " recebido" + reset);
             return receivePacket.getData();
       }
 

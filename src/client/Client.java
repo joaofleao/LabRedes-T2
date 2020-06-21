@@ -2,11 +2,9 @@ package client;
 
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
-import model.FileObject;
 
 public class Client {
-   
+
    private DatagramSocket clientSocket;
    private InetAddress IPAddress;
    private int packetSize;
@@ -25,40 +23,40 @@ public class Client {
       this.packetSize = packetSize;
       IPAddress = InetAddress.getByName("localhost");
    }
-   
-   public void open() throws SocketException{
-      clientSocket = new DatagramSocket(1972);     
+
+   public void open() throws SocketException {
+      clientSocket = new DatagramSocket(1972);
    }
-   
+
    public void close() {
       clientSocket.close();
    }
 
    public void sendFile(String fileName) throws Exception {
-      FileObject file = new FileObject(fileName, packetSize);
-      
-      for (int i = 0; i<file.getPacketsSize(); i++) {
-         sendPacket(file.getPacketsItem(i));
-         System.out.println(yellow + "Pacote " + (i+1) + " enviado" + reset);
-         System.out.println(yellow + file.getPacketsItem(i) + reset);
+      ClientFile file = new ClientFile(fileName, packetSize);
 
-         if (i+1<file.getPacketsSize() && i!=0) {
+      for (int i = 0; i < file.getPacketsSize(); i++) {
+         sendPacket(file.getPacketsItem(i));
+         System.out.println(yellow + "Pacote " + (i + 1) + " enviado" + reset);
+
+         if (i + 1 < file.getPacketsSize() && i != 0) {
             i++;
             sendPacket(file.getPacketsItem(i));
-            System.out.println(yellow + "Pacote " + (i+1) + " enviado" + reset);
+            System.out.println(yellow + "Pacote " + (i + 1) + " enviado" + reset);
          }
-         //receiveConfirmation();
+         // receiveConfirmation();
       }
-      
-      System.out.println(green + "Arquivo enviado" + reset);      
+
+      System.out.println(green + "Arquivo " + fileName + " enviado" + reset);
    }
 
    // private boolean receiveConfirmation() throws IOException {
 
-   //    byte[] receivedData = new byte[1024];
-   //    DatagramPacket receivedPacket = new DatagramPacket(receivedData, receivedData.length);
-   //    clientSocket.receive(receivedPacket);
-   //    return true;
+   // byte[] receivedData = new byte[1024];
+   // DatagramPacket receivedPacket = new DatagramPacket(receivedData,
+   // receivedData.length);
+   // clientSocket.receive(receivedPacket);
+   // return true;
 
    // }
 
