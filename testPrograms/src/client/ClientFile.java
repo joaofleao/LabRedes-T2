@@ -39,7 +39,7 @@ public class ClientFile {
             packet.setContent(segment);
             packets.add(packet);
         }
-        packets.get(packets.size()-1).setName("0");
+        packets.get(packets.size()-1).setNumber(0);
     }
 
     public int getPacketsSize() {
@@ -47,7 +47,7 @@ public class ClientFile {
     }
 
     public String getPacketsItem(int i) {
-        return packets.get(i-1).toString();
+        return packets.get(i).toString();
     }
 
     public String getPackets() {

@@ -9,7 +9,6 @@ import utils.PacketObject;
 public class ServerFile {
     private String name;
     private String content;
-    private int last;
 
     private ArrayList<PacketObject> packets;
 
@@ -28,13 +27,10 @@ public class ServerFile {
         }
 
     }
-    public boolean isLast(int number) {
-        return last==number;
-    }
 
-    public PacketObject getPacketObject(byte[] segment) {
+    public boolean addSegment(byte[] segment) {
         String packetNumber = "";
-        String temporaryName = "";
+        name = "";
         String packetContent = "";
         int i;
 
@@ -42,30 +38,18 @@ public class ServerFile {
             packetNumber = packetNumber + (char) segment[i];
 
         for (i++; segment[i] != 10; i++)
-            temporaryName = temporaryName + (char) segment[i];
-        
-        if (temporaryName.length()==1) last = Integer.parseInt(packetNumber);
-        else name = temporaryName;
+            name = name + (char) segment[i];
 
         for (i++; segment.length > i && segment[i] != 0; i++)
             packetContent = packetContent + (char) segment[i];
 
-        return new PacketObject(Integer.parseInt(packetNumber), name, packetContent, segment.length);
-    }
+        PacketObject packet = new PacketObject(Integer.parseInt(packetNumber), name, packetContent, segment.length);
 
-    // public void addSegment(byte[] segment) {
-    //     PacketObject packet = getPacketObject(segment);
-    //     packets.add(packet);
-    // }
+        packets.add(packet);
 
-    public void addSegment(PacketObject packet) {
-        if (packet.getNumber()==0) packets.add( packet);
-        else if (packet.getNumber()>=packets.size())packets.add(packet);
-        else  {
-            packets.remove(packet.getNumber());
-            packets.add(packet.getNumber(), packet);
-            
-        }
+        if (Integer.parseInt(packetNumber) == 0)
+            return true;
+        return false;
     }
 
     public void save() throws Exception {
@@ -78,7 +62,7 @@ public class ServerFile {
     public String getPackets() {
         String teste = "";
         for (PacketObject packetObject : packets) {
-            teste = teste + packetObject.getContent();
+            teste = teste + packetObject.toString() + "\n";
         }
         return teste;
     }

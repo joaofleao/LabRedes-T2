@@ -26,6 +26,7 @@ public class ClientConnection {
 
    public void open() throws SocketException {
       clientSocket = new DatagramSocket(1972);
+      clientSocket.setSoTimeout(1000);
    }
 
    public void close() {
@@ -34,31 +35,80 @@ public class ClientConnection {
 
    public void sendFile(String fileName) throws Exception {
       ClientFile file = new ClientFile(fileName, packetSize);
-
-      for (int i = 0; i < file.getPacketsSize(); i++) {
-         sendPacket(file.getPacketsItem(i));
-         System.out.println(yellow + "Pacote " + (i + 1) + " enviado" + reset);
-
-         if (i + 1 < file.getPacketsSize() && i != 0) {
-            i++;
-            sendPacket(file.getPacketsItem(i));
-            System.out.println(yellow + "Pacote " + (i + 1) + " enviado" + reset);
+      int iWantToSend = 1;
+      int send = 1;
+      int shallwe = 1;
+      
+      while (iWantToSend < file.getPacketsSize()) {
+         if (shallwe == file.getPacketsSize()+1) {
+            send = 0;
+            System.out.println(shallwe);
          }
-         // receiveConfirmation();
+         if (shallwe == file.getPacketsSize()) {
+            send = 1;
+            System.out.println(shallwe);
+         }
+         if (shallwe == file.getPacketsSize()-1) {
+            send = 2;
+            System.out.println(shallwe);
+         }
+
+         if (send==1) {
+            sendPacket(file.getPacketsItem(shallwe));
+            System.out.println(yellow + "\nSingle Mandei o pacote " + shallwe + reset);
+            send=2;
+            shallwe++;
+            if (shallwe == file.getPacketsSize()) {
+               send = 1;
+            }
+            else if (shallwe == file.getPacketsSize()+1) {
+               send = 0;
+            }
+         }
+         else if (send==2){
+            for (int i = 0; i < 2 && iWantToSend < file.getPacketsSize(); i++) {
+               sendPacket(file.getPacketsItem(shallwe));
+               System.out.println(yellow + "\nDouble Mandei o pacote " + shallwe + reset);
+               shallwe++;
+            }
+         }
+       
+         int iWillSend = receiveConfirmation(iWantToSend);
+         if (iWillSend - 1 == iWantToSend) {
+            System.out.println(green + "Pacote " + iWantToSend + " confirmado" + reset);
+            System.out.println(new String(file.getPacketsItem(iWantToSend).getBytes()));
+            iWantToSend = iWillSend;
+         }
+         else {
+            shallwe = iWillSend;
+            System.out.println(red + shallwe + " " +iWillSend + reset);
+            send = 1;
+         }
+
       }
 
-      System.out.println(green + "Arquivo " + fileName + " enviado" + reset);
+      System.out.println(blue + "Arquivo " + fileName + " enviado" + reset);
    }
 
-   // private boolean receiveConfirmation() throws IOException {
+   private int receiveConfirmation(int iWantToSend) throws IOException {
+      byte[] receivedData = new byte[3];
+      DatagramPacket receivedPacket = new DatagramPacket(receivedData, receivedData.length);
+      for(int tentativas = 0; tentativas<3; tentativas++) {
+         try {
+            clientSocket.receive(receivedPacket);
+            int receivedNumber = Integer.parseInt(new String(receivedPacket.getData()));
+            //System.out.println(cyan + "Pacote " + receivedNumber + " recebido" + reset);
+            if (receivedNumber-1==iWantToSend) return receivedNumber;
+            //else System.out.println(red + "Verificando pela " + receivedNumber + " eu ia mandar " + iWantToSend + reset);
+         } catch (SocketTimeoutException e) {
+            System.out.println(red + "TimeOut, solicitando " + iWantToSend + " novamente" + reset);
+            //break;
+         }
+      }
+      
+      return iWantToSend;
 
-   // byte[] receivedData = new byte[1024];
-   // DatagramPacket receivedPacket = new DatagramPacket(receivedData,
-   // receivedData.length);
-   // clientSocket.receive(receivedPacket);
-   // return true;
-
-   // }
+   }
 
    private void sendPacket(String fileText) throws IOException {
       byte[] out = fileText.getBytes();

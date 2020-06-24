@@ -19,9 +19,6 @@ public class PacketObject {
     public void setContent(String content) {
         this.content = content;
     }
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public void setNumber(int number) {
         this.number = number;
@@ -33,9 +30,6 @@ public class PacketObject {
 
     public String getContent() {
         return content;
-    }
-    public int getNumber() {
-        return number;
     }
 
     public String toString() {
