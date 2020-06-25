@@ -1,9 +1,7 @@
 package client;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 
 import utils.PacketObject;
 
@@ -16,46 +14,6 @@ public class ClientFile {
         this.name = name;
         open();
         setPackets(packetSize);
-
-    }
-
-    private String getSegment(int segmentNumber, int segmentSize) {
-        String segment = "";
-        for (int i = (segmentNumber-1)*segmentSize; segmentSize>0 ; i++) {
-            if(i == content.length()) break;
-            if(i > content.length()) return "";
-            segment = segment + content.charAt(i);
-            segmentSize--;
-        }
-        return segment;
-    }
-
-    private void setPackets(int packetSize) {
-        packets = new ArrayList<PacketObject>();
-        for (int i = 1; true; i++) {
-            PacketObject packet = new PacketObject(i, name, "", packetSize);
-            String segment = getSegment(i, packet.getContentSize());
-            if (segment.length()==0) break;
-            packet.setContent(segment);
-            packets.add(packet);
-        }
-        packets.get(packets.size()-1).setName("0");
-    }
-
-    public int getPacketsSize() {
-        return packets.size();
-    }
-
-    public String getPacketsItem(int i) {
-        return packets.get(i-1).toString();
-    }
-
-    public String getPackets() {
-        String teste = "";
-        for (PacketObject packetObject : packets) {
-            teste = teste + packetObject.toString() + "\n";
-        }
-        return teste;
     }
 
     private void open() throws Exception {
@@ -65,10 +23,54 @@ public class ClientFile {
         byte[] buffer = new byte[1024];
         is.read(buffer);
         is.close();
-        content = new String (format(buffer));
+        content = new String(format(buffer));
     }
 
-    public static byte[] format(byte[] packet) {
+    private void setPackets(int packetSize) {
+        packets = new ArrayList<PacketObject>();
+        for (int i = 0; true; i++) {
+            PacketObject packet = new PacketObject(i, name, packetSize);
+            String segment = getSegment(i, packet.getContentSize());
+            if (segment.length() == 0)
+                break;
+            packet.setContent(segment);
+            packets.add(packet);
+        }
+        for (PacketObject packetObject : packets) {
+            packetObject.setNumberOfPackets(packets.size() - 1);
+        }
+    }
+
+    private String getSegment(int segmentNumber, int segmentSize) {
+        String segment = "";
+        for (int i = (segmentNumber) * segmentSize; segmentSize > 0; i++) {
+            if (i == content.length())
+                break;
+            if (i > content.length())
+                return "";
+            segment = segment + content.charAt(i);
+            segmentSize--;
+        }
+        return segment;
+    }
+
+    public int getPacketsSize() {
+        return packets.size();
+    }
+
+    public String getPacketsItem(int i) {
+        return packets.get(i).toString();
+    }
+
+    public String toString() {
+        String text = "";
+        for (PacketObject packetObject : packets) {
+            text = text + packetObject.toString() + "\n----------------------\n";
+        }
+        return text;
+    }
+
+    public byte[] format(byte[] packet) {
         String formatted = "";
         for (int i = 0; packet[i] != 0; i++)
             formatted = formatted + (char) packet[i];

@@ -1,8 +1,9 @@
 package server;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import utils.Variables;
 
 import utils.PacketObject;
 
@@ -28,44 +29,64 @@ public class ServerFile {
         }
 
     }
-    public boolean isLast(int number) {
-        return last==number;
-    }
 
     public PacketObject getPacketObject(byte[] segment) {
-        String packetNumber = "";
-        String temporaryName = "";
+        String number = "";
+        String size = "";
+        String packetName = "";
+        String crc = "";
         String packetContent = "";
+        
         int i;
-
+               
         for (i = 0; segment[i] != 10; i++)
-            packetNumber = packetNumber + (char) segment[i];
+            number = number + (char) segment[i];
 
         for (i++; segment[i] != 10; i++)
-            temporaryName = temporaryName + (char) segment[i];
-        
-        if (temporaryName.length()==1) last = Integer.parseInt(packetNumber);
-        else name = temporaryName;
+            size = size + (char) segment[i];
+
+        for (i++; segment[i] != 10; i++)
+            packetName = packetName + (char) segment[i];
+
+        for (i++; segment[i] != 10; i++)
+            crc = crc + (char) segment[i];
 
         for (i++; segment.length > i && segment[i] != 0; i++)
             packetContent = packetContent + (char) segment[i];
 
-        return new PacketObject(Integer.parseInt(packetNumber), name, packetContent, segment.length);
+        PacketObject packet = new PacketObject(Integer.parseInt(number), packetName, segment.length);
+        packet.setNumberOfPackets(Integer.parseInt(size));
+        packet.setContent(packetContent);
+        packet.setCRC(crc);
+        name = packetName;
+
+        return packet;
     }
 
-    // public void addSegment(byte[] segment) {
-    //     PacketObject packet = getPacketObject(segment);
-    //     packets.add(packet);
-    // }
+    private boolean testCRC(PacketObject packet) {
+        long crcreceived = Long.parseLong(packet.getCRC());
+        long crcMade = packet.generateCRC(packet.getContent());
+        
+        if (crcreceived ==crcMade) return true;
+                
+        return false;
+    }
 
-    public void addSegment(PacketObject packet) {
-        if (packet.getNumber()==0) packets.add( packet);
-        else if (packet.getNumber()>=packets.size())packets.add(packet);
-        else  {
-            packets.remove(packet.getNumber());
-            packets.add(packet.getNumber(), packet);
-            
+    public boolean addSegment(PacketObject packet) {
+        if (!testCRC(packet)) {
+            System.out.println(Variables.red + "CRC incorrect" + Variables.reset);
+            return false;
         }
+        if (packet.getNumber()==packets.size()){
+            packets.add(packet); 
+            System.out.println(Variables.cyan + "Segment added" + Variables.reset);
+        }
+        else {
+            System.out.println(Variables.yellow + "Segmento already added" + Variables.reset);
+        }
+
+        return true;
+        
     }
 
     public void save() throws Exception {

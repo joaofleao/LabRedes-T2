@@ -2,8 +2,9 @@ package server;
 
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
+import java.util.*;
 
+import utils.Variables;
 import utils.PacketObject;
 
 public class ServerConnection {
@@ -13,15 +14,7 @@ public class ServerConnection {
       private int packetSize;
       private int headerSize;
 
-      public static final String reset = "\u001B[0m";
-      public static final String black = "\u001B[30m";
-      public static final String red = "\u001B[31m";
-      public static final String green = "\u001B[32m";
-      public static final String yellow = "\u001B[33m";
-      public static final String blue = "\u001B[34m";
-      public static final String purple = "\u001B[35m";
-      public static final String cyan = "\u001B[36m";
-      public static final String white = "\u001B[37m";
+      
 
       public ServerConnection(int packetSize) throws UnknownHostException {
             this.packetSize = packetSize;
@@ -30,6 +23,7 @@ public class ServerConnection {
 
       public void open() throws SocketException, UnknownHostException {
             serverSocket = new DatagramSocket(1971);
+            serverSocket.setSoTimeout(10000);
       }
 
       public void close() {
@@ -44,39 +38,60 @@ public class ServerConnection {
 
       public void receiveFile() throws Exception {
             ServerFile file = new ServerFile();
-            System.out.println(purple + "Waiting..." + reset);
+            System.out.println(Variables.purple + "Waiting..." + Variables.reset);
 
-            int iWantToReceive = 1;
-            int saved = 0;
+            int iNeed = 0;
+            int received = 0;
             int count = 0;
-
+            
             while (true) {
                   PacketObject receivedPacket = receivePacket(file);
-                  int receivedNumber = receivedPacket.getNumber();
-                  if (receivedNumber==saved) count++;
-                  else saved = receivedNumber;
+                  System.out.println(Variables.green + "\nPacket" + receivedPacket.getNumber() + " received" + Variables.reset);
+                  if(received==receivedPacket.getNumber()) count++;
+                  else received = receivedPacket.getNumber();
                   
-                  System.out.println(green + "\nRecebido pacote " + receivedNumber + reset);
-
-                  if (iWantToReceive == receivedNumber) {
+                  if(received==iNeed) {
+                        //if (file.addSegment(receivedPacket)) iNeed++;
                         file.addSegment(receivedPacket);
-                        System.out.println(file.getPackets());
-                        iWantToReceive++;
-                        if (file.isLast(receivedNumber)) break;
+                        iNeed++;
                   }
-                  else if (count>2) {
-                        iWantToReceive = saved;
+
+                  if(count==3) {
+                        iNeed = received;
                         count = 0;
-                        System.out.println(saved);
                   }
 
-                  warn(iWantToReceive);
-                  System.out.println(yellow + "Eu quero pacote " + iWantToReceive + reset);
+                  warn(iNeed);
+                  System.out.println(Variables.yellow + "\nPacket" + iNeed + " asked" + Variables.reset);
+                  if(iNeed-1 == receivedPacket.getNumberOfPackets()) break;
             }
-
-            System.out.println(blue + "Arquivo " + file.getName() + " recebido" + reset);
-
+                  
+         
+            System.out.println(Variables.blue + "File " + file.getName() + " received and saved" + Variables.reset);
             file.save();
+            
+            System.out.println(Variables.blue + "Waiting for Client to transmission " + Variables.reset);
+            try {
+                  receiveTransmissionEnd();
+                  System.out.println(Variables.blue + "Transmission is over " + Variables.reset);
+            }
+            catch(Exception e) {
+                  System.out.println(Variables.blue + "Client not responding, transmission over" + Variables.reset);
+            }
+            
+      }
+
+      private void receiveTransmissionEnd() throws IOException {
+            while (true) {
+                  byte[] receiveData = new byte[3];
+                  DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                  serverSocket.receive(receivePacket);
+                  warn(Integer.parseInt(new Scanner(new String(receivePacket.getData())).nextLine())+1);
+                  System.out.println(Variables.red + "yabadabadu" + Variables.reset);
+                  
+                  if ("end".equals(new String (receivePacket.getData()))) break;
+
+            }
       }
 
       private void warn(int number) throws IOException {
@@ -93,11 +108,10 @@ public class ServerConnection {
       }
 
       private PacketObject receivePacket(ServerFile file) throws IOException {
-
             byte[] receiveData = new byte[packetSize];
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             serverSocket.receive(receivePacket);
-
+            
             return file.getPacketObject(receivePacket.getData());
       }
 
