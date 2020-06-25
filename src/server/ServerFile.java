@@ -1,7 +1,6 @@
 package server;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 import utils.Variables;
 
@@ -10,7 +9,6 @@ import utils.PacketObject;
 public class ServerFile {
     private String name;
     private String content;
-    private int last;
 
     private ArrayList<PacketObject> packets;
 
@@ -27,7 +25,6 @@ public class ServerFile {
         for (PacketObject packetObject : packets) {
             content = content + packetObject.getContent();
         }
-
     }
 
     public PacketObject getPacketObject(byte[] segment) {
@@ -36,9 +33,9 @@ public class ServerFile {
         String packetName = "";
         String crc = "";
         String packetContent = "";
-        
+
         int i;
-               
+
         for (i = 0; segment[i] != 10; i++)
             number = number + (char) segment[i];
 
@@ -66,9 +63,10 @@ public class ServerFile {
     private boolean testCRC(PacketObject packet) {
         long crcreceived = Long.parseLong(packet.getCRC());
         long crcMade = packet.generateCRC(packet.getContent());
-        
-        if (crcreceived ==crcMade) return true;
-                
+
+        if (crcreceived == crcMade)
+            return true;
+
         return false;
     }
 
@@ -77,16 +75,15 @@ public class ServerFile {
             System.out.println(Variables.red + "CRC incorrect" + Variables.reset);
             return false;
         }
-        if (packet.getNumber()==packets.size()){
-            packets.add(packet); 
+        if (packet.getNumber() == packets.size()) {
+            packets.add(packet);
             System.out.println(Variables.cyan + "Segment added" + Variables.reset);
-        }
-        else {
+        } else {
             System.out.println(Variables.yellow + "Segmento already added" + Variables.reset);
         }
 
         return true;
-        
+
     }
 
     public void save() throws Exception {
@@ -94,6 +91,7 @@ public class ServerFile {
         File file = new File("out_files/" + name);
         FileOutputStream fileWritter = new FileOutputStream(file);
         fileWritter.write(content.getBytes());
+        fileWritter.close();
     }
 
     public String getPackets() {
