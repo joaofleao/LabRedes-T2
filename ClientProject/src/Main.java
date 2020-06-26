@@ -1,9 +1,7 @@
-package client;
-
 import java.util.Scanner;
 
-public class MainClient {
-    public static void main(String args[]) throws Exception {
+public class Main {
+    public static void main(String[] args) throws Exception {
         ClientConnection c = new ClientConnection(50);
         Scanner keyboard = new Scanner(System.in);
         c.open();
@@ -20,7 +18,6 @@ public class MainClient {
             catch(Exception e) {
                 System.out.println("Path inexistent");
             }
-            
         }
         keyboard.close();
         c.close();

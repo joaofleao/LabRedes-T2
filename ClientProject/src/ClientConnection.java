@@ -1,10 +1,7 @@
-package client;
-
 import java.io.*;
 import java.net.*;
 
 
-import utils.Variables;
 
 public class ClientConnection {
 

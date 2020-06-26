@@ -1,5 +1,3 @@
-package utils;
-
 import java.util.zip.CRC32;
 
 public class PacketObject {

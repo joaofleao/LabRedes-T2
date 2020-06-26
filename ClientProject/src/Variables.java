@@ -1,5 +1,3 @@
-package utils;
-
 public class Variables {
     public static final String reset = "\u001B[0m";
     public static final String black = "\u001B[30m";

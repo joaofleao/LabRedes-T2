@@ -1,10 +1,5 @@
-package server;
-
 import java.io.*;
 import java.util.*;
-import utils.Variables;
-
-import utils.PacketObject;
 
 public class ServerFile {
     private String name;

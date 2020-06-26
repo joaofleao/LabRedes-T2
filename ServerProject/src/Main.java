@@ -1,9 +1,7 @@
-package server;
-
 import java.util.Scanner;
 
-public class MainServer {
-    public static void main(String args[]) throws Exception {
+public class Main {
+    public static void main(String[] args) throws Exception {
         ServerConnection s = new ServerConnection(50);
         Scanner keyboard = new Scanner(System.in);
         s.open();
@@ -17,6 +15,6 @@ public class MainServer {
         s.close();
         System.out.println("Connection ended");
     }
-}
+}]
 
 

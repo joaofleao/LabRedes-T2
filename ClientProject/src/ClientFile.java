@@ -1,9 +1,5 @@
-package client;
-
 import java.io.*;
 import java.util.*;
-
-import utils.PacketObject;
 
 public class ClientFile {
     private String name;

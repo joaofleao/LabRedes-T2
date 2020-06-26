@@ -1,11 +1,8 @@
-package server;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import utils.Variables;
-import utils.PacketObject;
 
 public class ServerConnection {
 
