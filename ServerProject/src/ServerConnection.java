@@ -24,12 +24,6 @@ public class ServerConnection {
             serverSocket.close();
       }
 
-      public int getNumber(byte[] text) {
-            Scanner scanner = new Scanner(new String(text));
-            return Integer.parseInt(scanner.nextLine());
-
-      }
-
       public void receiveFile() throws Exception {
             ServerFile file = new ServerFile();
             System.out.println(Variables.purple + "Waiting..." + Variables.reset);

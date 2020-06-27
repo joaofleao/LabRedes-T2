@@ -7,13 +7,13 @@ public class Main {
         c.open();
         System.out.println("Connection started");
         while(true) {
-            System.out.println("Write 0 to send a file");
+            System.out.println("Write 0 to send a file, or anything else to end connection");
             if (!keyboard.nextLine().equals("0")) break;
             
-            System.out.println("Insert the file path");
-            c.sendFile(keyboard.nextLine());
             
             try {
+                System.out.println("Insert the file path");
+                c.sendFile(keyboard.nextLine());
             }
             catch(Exception e) {
                 System.out.println("Path inexistent");

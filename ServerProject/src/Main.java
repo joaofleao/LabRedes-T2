@@ -15,6 +15,6 @@ public class Main {
         s.close();
         System.out.println("Connection ended");
     }
-}]
+}
 
 

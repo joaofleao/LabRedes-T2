@@ -83,7 +83,7 @@ public class ServerFile {
 
     public void save() throws Exception {
         assembleSegments();
-        File file = new File("out_files/" + name);
+        File file = new File("../out_files/" + name);
         FileOutputStream fileWritter = new FileOutputStream(file);
         fileWritter.write(content.getBytes());
         fileWritter.close();
