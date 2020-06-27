@@ -13,10 +13,11 @@ public class ClientFile {
     }
 
     private void open() throws Exception {
-        File file = new File("../in_files/" + name);
+        File file;
+        file = new File("../in_files/" + name);
         InputStream is = null;
         is = new FileInputStream(file);
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[10000];
         is.read(buffer);
         is.close();
         content = new String(format(buffer));

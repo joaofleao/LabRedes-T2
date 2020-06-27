@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        ServerConnection s = new ServerConnection(50);
+        ServerConnection s = new ServerConnection(512);
         Scanner keyboard = new Scanner(System.in);
         s.open();
         System.out.println("Connection started");
