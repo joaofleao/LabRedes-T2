@@ -7,14 +7,14 @@ public class ClientFile {
     private ArrayList<PacketObject> packets;
 
     public ClientFile(String name, int packetSize) throws Exception {
-        this.name = name;
-        open();
+        open(name);
         setPackets(packetSize);
     }
 
-    private void open() throws Exception {
+    private void open(String name) throws Exception {
         File file;
         file = new File("../in_files/" + name);
+        this.name = file.getName();
         InputStream is = null;
         is = new FileInputStream(file);
         byte[] buffer = new byte[10000];
